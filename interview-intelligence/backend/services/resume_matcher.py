@@ -1,18 +1,28 @@
 import os
 import json
 import asyncio
-from google import genai
-from google.genai import types
+from groq import Groq
 from pydantic import BaseModel
 
-API_KEY = os.getenv("GEMINI_API_KEY")
-client = genai.Client(api_key=API_KEY) if API_KEY and API_KEY != "dummy" else None
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
+API_KEY = os.getenv("GROQ_API_KEY")
+client = Groq(api_key=API_KEY) if API_KEY else None
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 
 SYSTEM_PROMPT = """
 You are an expert ATS (Applicant Tracking System) and career advisor.
 Analyze the candidate's resume content against the expected job role.
 Determine matched skills, missing skills, experience alignment, education relevance, and provide actionable recommendations. Finally, give a match score from 0-100 and a brief summary.
+
+You MUST return ONLY a valid JSON object mirroring this structure:
+{
+  "match_score": int,
+  "matched_skills": ["str"],
+  "missing_skills": ["str"],
+  "experience_alignment": "str",
+  "education_relevance": "str",
+  "recommendations": ["str"],
+  "summary": "str"
+}
 """
 
 class ResumeMatch(BaseModel):
@@ -55,7 +65,8 @@ Resume Content:
     if transcript:
         user_prompt += f"\nInterview Transcript (for holistic alignment):\n\"\"\"\n{transcript[:2000]}\n\"\"\""
 
-    return await asyncio.to_thread(_call_gemini, SYSTEM_PROMPT + "\n\n" + user_prompt)
+    msg = [{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": user_prompt}]
+    return await asyncio.to_thread(_call_groq, msg)
 
 
 def _extract_resume_text(resume_path: str) -> str:
@@ -88,21 +99,18 @@ def _extract_docx(path: str) -> str:
         return f"DOCX extraction error: {e}"
 
 
-def _call_gemini(full_prompt: str) -> dict:
+def _call_groq(messages: list[dict]) -> dict:
     if not client:
-        raise RuntimeError("GEMINI_API_KEY is missing or invalid.")
+        raise RuntimeError("GROQ_API_KEY is missing or invalid.")
     
-    response = client.models.generate_content(
-        model=GEMINI_MODEL,
-        contents=full_prompt,
-        config=types.GenerateContentConfig(
-            temperature=0.2,
-            max_output_tokens=1000,
-            response_mime_type="application/json",
-            response_schema=ResumeMatch,
-        )
+    response = client.chat.completions.create(
+        model=GROQ_MODEL,
+        messages=messages,
+        temperature=0.2,
+        max_tokens=1000,
+        response_format={"type": "json_object"}
     )
-    raw = response.text.strip().replace("```json", "").replace("```", "").strip()
+    raw = response.choices[0].message.content.strip()
     
     try:
         return json.loads(raw)
@@ -111,4 +119,4 @@ def _call_gemini(full_prompt: str) -> dict:
         try:
             return ast.literal_eval(raw)
         except:
-            raise ValueError(f"Gemini schema generation failed: {e}")
+            raise ValueError(f"Groq schema generation failed: {e}")

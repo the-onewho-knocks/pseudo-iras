@@ -28,7 +28,7 @@ async def analyze_interview(payload: AnalyzeRequest):
         # Step 2 — Audio Metrics (filler words, pace, pauses)
         audio_metrics = await extract_audio_metrics(file_path, transcript)
 
-        # Step 3 — AI Scoring via Gemini
+        # Step 3 — AI Scoring via Groq Llama-3
         ai_scores = await analyze_transcript(
             transcript=transcript,
             job_role=payload.job_role,
@@ -60,5 +60,5 @@ async def analyze_interview(payload: AnalyzeRequest):
     except Exception as e:
         error_msg = str(e).lower()
         if "authentication" in error_msg or "api key" in error_msg or "401" in error_msg:
-            raise HTTPException(status_code=401, detail="Invalid API Key. Please update your .env file with valid GROQ_API_KEY and GEMINI_API_KEY.")
+            raise HTTPException(status_code=401, detail="Invalid API Key. Please update your .env file with a valid GROQ_API_KEY.")
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")

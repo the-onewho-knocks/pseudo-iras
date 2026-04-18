@@ -2,11 +2,12 @@ import os
 import asyncio
 import json
 import base64
-import google.generativeai as genai
+from groq import Groq
 from utils.video_utils import extract_frames_from_video
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
+API_KEY = os.getenv("GROQ_API_KEY")
+client = Groq(api_key=API_KEY) if API_KEY else None
+GROQ_VISION_MODEL = "llama-3.2-90b-vision-preview"
 
 VIDEO_EXTENSIONS = {".mp4", ".webm", ".mov", ".avi"}
 
@@ -42,35 +43,51 @@ async def _analyze_video_frames(file_path: str) -> dict:
 
     # Batch 3 frames into a SINGLE request to avoid 429 Rate Limit Exhaustion
     selected_frames = frames[:3]
-    results = await asyncio.to_thread(_gemini_vision_emotion_batch, selected_frames)
+    results = await asyncio.to_thread(_groq_vision_emotion_batch, selected_frames)
     return {"frame_emotions": results}
 
 
-def _gemini_vision_emotion_batch(frame_paths: list[str]) -> list[dict]:
-    contents = []
+def _groq_vision_emotion_batch(frame_paths: list[str]) -> list[dict]:
+    if not client:
+        return [{"emotion": "neutral", "confidence": 0.5, "notes": "No Groq client"}] * len(frame_paths)
+
+    content_list = []
+    content_list.append({
+        "type": "text", 
+        "text": "Look at these sequential interview frames. Identify the person's emotional state in each. Return ONLY a valid JSON object matching exactly this format: {\"emotions\": [{\"emotion\": \"<label>\", \"confidence\": <0.0-1.0>, \"notes\": \"<brief>\"}]}"
+    })
+
     for fp in frame_paths:
         with open(fp, "rb") as f:
             image_data = base64.b64encode(f.read()).decode("utf-8")
-            contents.append({"mime_type": "image/jpeg", "data": image_data})
+            content_list.append({
+                "type": "image_url", 
+                "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}
+            })
 
-    contents.append(
-        "Look at these sequential interview frames. Identify the person's emotional state in each. "
-        "Return ONLY a valid JSON array of objects (one per image) with no markdown fences. "
-        "Format: [{\"emotion\": \"<label>\", \"confidence\": <0.0-1.0>, \"notes\": \"<brief>\"}]"
-    )
+    messages = [{"role": "user", "content": content_list}]
 
-    model = genai.GenerativeModel(GEMINI_MODEL)
-    response = model.generate_content(contents)
-    
-    raw = response.text.strip().replace("```json", "").replace("```", "").strip()
     try:
-        parsed_emotions = json.loads(raw)
+        response = client.chat.completions.create(
+            model=GROQ_VISION_MODEL,
+            messages=messages,
+            temperature=0.2,
+            max_tokens=600,
+            response_format={"type": "json_object"}
+        )
+        
+        raw = response.choices[0].message.content.strip()
+        parsed = json.loads(raw)
+        parsed_emotions = parsed.get("emotions", [])
+        
         if not isinstance(parsed_emotions, list):
             parsed_emotions = [parsed_emotions]
-        # Pad or slice to match exactly len(frame_paths) just in case AI gets confused
+            
         while len(parsed_emotions) < len(frame_paths):
             parsed_emotions.append({"emotion": "neutral", "confidence": 0.5, "notes": "fallback padding"})
-    except Exception:
+            
+    except Exception as e:
+        print(f"[Groq Vision Error] {e}")
         parsed_emotions = [{"emotion": "neutral", "confidence": 0.5, "notes": "parse error"}] * len(frame_paths)
 
     results = []

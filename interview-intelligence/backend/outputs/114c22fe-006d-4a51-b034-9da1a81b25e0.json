@@ -1,0 +1,83 @@
+{
+  "session_id": "114c22fe-006d-4a51-b034-9da1a81b25e0",
+  "generated_at": "2026-04-18T19:26:46.845731+00:00",
+  "job_role": "Software Engineer",
+  "overall_score": 42,
+  "summary": {
+    "overall_score": 42,
+    "job_role": "Software Engineer",
+    "recommended": false,
+    "speech_pace_wpm": 0.0,
+    "filler_rate_pct": 1.46,
+    "word_count": 1097,
+    "assessment": "Nikita demonstrates good communication and strong interest in software development but lacks the practical project experience and technical depth required for a software engineer role."
+  },
+  "transcript": " Hello Nikita, so can you please tell me a bit about yourself? Good afternoon, sir. Thank you for giving this opportunity to introduce myself and I'm very happy to be here. My name is Nikita Sharma and I am from Udaipur, Pakistan itself. I have done my schooling from St. Matthew's in a secondary school. I have secured 80.2% 10 standard and 86.3 into a standard and till now my aggregate percentage is 9.6. My technical skills are basically composed of or as I can say I have learnt different languages which includes Python, C. I am an intermediate level person at using Flutter and basics of other software as well. Anything else you want to know sir? So tell me Nikita what kind of job do you want to get from the campus interviews? So as a beginner level I want to have a job as a software developer but later on I want to go in analyst so as job of software analyst. Software developer or software analyst? From campus interview I definitely go for software developer and later if I get chance to do further studies then definitely analyst. Okay. So why should a company hire you as a software developer? So I think I have good communication skills and I am trying to learn software day by day like more efficiently and I had my interest only in software so I really wanted to have a software developer job. So have you done any projects in software development So till now I have started like I have started on using like I have started my projects on Flutter I am at the intermediate level at Flutter So I am just trying to make a page or something like that and I just started my projects with that. Right. And, but one question I have is that you are an ECE student, right? Yes, sir. and there are a lot of students with computer science application who would also get trained and they get taught on software. So why should we take you from ECE versus a student from computer science? Sir, I decided to choose electronics and communication because I have choices like I can go in my domain itself and in IT sector too. So I probably have interest in IT sector only, like in software. So, maybe I have something more than unusual things that only competitors and students have. So, I will try to do more in coding and programming. Alright. Some quick feedback, Nikita. Your communication is quite good and you are reasonably confident. Nikita. Yes, sir. Good afternoon, sir. I was hearing your communication with Arun Sinha, sir. and I knew that you are interested more for the software developer jobs, right? Yes, sir. So why software developer jobs? Sir, I have an interest in software, that's why. Then why you have taken ECE, electronic and communication? Sir, I have chosen electronics and communication because I have more chances whether I want to go in domain or in IT sector I am really trying hard for an IT sector job because it quite like my interest job So I want to go there So what kind of projects you have done in the field of software development? So till now I haven't done any project because I realized it later that where I want to go at last. So I have started doing the project on Strutter which was given by our teacher. So I have started that by making a login page and I have done many languages which include C++, Python and I am learning right now HTML for more further. But for example we want to hire a software developer and we have the vacancies for electronics and computer science both but the computer science engineer who is also looking for the same profile they have done 2 to 3 projects in the same domain. You have not done even a single project. So why we will hire you. We have better choice with us. What is something unique in you so that we will hire you? Definitely in this coming three or three, maybe three or four months, I'll definitely make more projects which can distinguish me from CSE students. For example, any electrical, electronics student because they are from the circuit branch. If they want to go for software developer jobs, so what other skills they have to possess in compared to the computer science student? What if we So first is critical thinking It's very important in building any project Critical thinking then Programming Basically DSA All the algorithms that they need to study For developing it others And For example electronics company will come You will not sit Or if you sit for the company because you are from Electronics so definitely you will have the interest for sitting and after sitting you have got the selections In that case, what will you do? You will go for that job or not? No, sir. You want to go for the IT job only? Yes, sir. How you rate yourself in the field of programming? I don't know. So, till now if I need to do it out of 10, it would be 7. Okay Nikita, it does not have any issues because many electronics students are getting good IT jobs, they are getting priorities in compared to the computer science students sometime if they have good capabilities, we can take the example of last year's student also one of the candidate, Nancy was one of the best candidate. So from EC also, the people can get IT jobs and they can get priority on computer science student also. But it all depends upon your capabilities and the knowledge. But it doesn't mean that if you have taken EC, you don't want to go for EC job. So you have to explore both. Nice talking to you. Thank you. Thank you, sir. In your earlier part of the interview, you said you have been working on Flutter or you have started working on Flutter. what is the motivation behind using Flutter it's about coming the techniques or coming more efficient ways to build apps so I have heard somewhere that Flutter can be used in many ways from coming time and it will gonna help later so I'm just trying to learn something new so that's why I just clicked on Flutter where do you use Python so they can be used in making various apps and doing internal coding and programming.",
+  "ai_scores": {
+    "scores": {
+      "communication_clarity": 7,
+      "technical_knowledge": 3,
+      "problem_solving": 3,
+      "confidence": 6,
+      "cultural_fit": 6,
+      "leadership_potential": 2,
+      "conciseness": 4,
+      "relevance_of_answers": 5
+    },
+    "overall_score": 42,
+    "strengths": [
+      "Good communication skills and polite demeanor.",
+      "Strong interest and motivation for software development."
+    ],
+    "weaknesses": [
+      "Significant lack of practical software development projects.",
+      "Limited technical depth and generic answers regarding technologies."
+    ],
+    "improvement_tips": [
+      "Actively build and complete several personal software projects to demonstrate practical skills.",
+      "Deepen technical knowledge in chosen languages/frameworks and articulate specific applications."
+    ],
+    "summary": "Nikita demonstrates good communication and strong interest in software development but lacks the practical project experience and technical depth required for a software engineer role.",
+    "recommended_for_role": false
+  },
+  "audio_metrics": {
+    "filler_word_analysis": {
+      "total_filler_words": 16,
+      "breakdown": {
+        "like": 7,
+        "right": 4,
+        "basically": 2,
+        "kind of": 2,
+        "well": 1
+      },
+      "filler_rate": 1.46
+    },
+    "word_count": 1097,
+    "sentence_count": 72,
+    "avg_sentence_length": 15.24,
+    "speech_pace_wpm": 0.0,
+    "pause_analysis": {
+      "estimated_long_pauses": 0,
+      "note": "For precise pause detection, use Whisper verbose timestamps."
+    },
+    "vocabulary_diversity": {
+      "total_words": 1113,
+      "unique_words": 318,
+      "type_token_ratio": 0.2857,
+      "top_10_words": {
+        "i": 50,
+        "have": 37,
+        "you": 35,
+        "so": 32,
+        "and": 31,
+        "to": 29,
+        "the": 26,
+        "in": 24,
+        "software": 19,
+        "it": 18
+      }
+    },
+    "duration_seconds": 0.0
+  },
+  "version": "1.0"
+}
