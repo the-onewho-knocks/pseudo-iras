@@ -67,11 +67,11 @@ async def send_report_email(
     candidate_name: str,
     report: dict,
     session_id: str
-) -> bool:
+) -> tuple[bool, str]:
     return await asyncio.to_thread(_send_email_sync, to_email, candidate_name, report, session_id)
 
 
-def _send_email_sync(to_email, candidate_name, report, session_id) -> bool:
+def _send_email_sync(to_email, candidate_name, report, session_id) -> tuple[bool, str]:
     try:
         ai_scores = report.get("ai_scores", {})
         html = Template(EMAIL_TEMPLATE).render(
@@ -86,17 +86,37 @@ def _send_email_sync(to_email, candidate_name, report, session_id) -> bool:
 
         msg = MIMEMultipart("alternative")
         msg["Subject"] = f"Your Interview Analysis Report — {session_id[:8]}"
-        msg["From"]    = FROM_EMAIL
+        msg["From"]    = FROM_EMAIL or "mock@local.dev"
         msg["To"]      = to_email
         msg.attach(MIMEText(html, "html"))
 
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-            server.ehlo()
-            server.starttls()
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            server.sendmail(FROM_EMAIL, to_email, msg.as_string())
+        # Local fallback if SMTP is not configured
+        if not SMTP_USER or not SMTP_PASSWORD:
+            print(f"⚠️ [EmailService MOCK] SMTP_USER is missing. Simulating sending email to: {to_email}")
+            print(f"   Subject: {msg['Subject']}")
+            return True, "Mock sent successfully"
 
-        return True
+        if SMTP_PORT == 465:
+            with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=15) as server:
+                server.login(SMTP_USER, SMTP_PASSWORD)
+                server.sendmail(msg["From"], to_email, msg.as_string())
+        else:
+            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=15) as server:
+                server.ehlo()
+                server.starttls()
+                server.login(SMTP_USER, SMTP_PASSWORD)
+                server.sendmail(msg["From"], to_email, msg.as_string())
+
+        return True, "Report successfully sent."
+    except TimeoutError:
+        err_msg = f"Connection timed out when reaching {SMTP_HOST}:{SMTP_PORT}. The port might be blocked by your firewall/ISP."
+        print(f"❌ [EmailService] Timeout Error: {err_msg}")
+        return False, err_msg
+    except smtplib.SMTPAuthenticationError:
+        err_msg = "Authentication failed. Check if your SMTP_PASSWORD is an 'App Password' (required for Gmail)."
+        print(f"❌ [EmailService] Auth Error: {err_msg}")
+        return False, err_msg
     except Exception as e:
-        print(f"[EmailService] Error: {e}")
-        return False
+        err_msg = f"Failed to send email: {str(e)}"
+        print(f"❌ [EmailService] General Error: {err_msg}")
+        return False, err_msg

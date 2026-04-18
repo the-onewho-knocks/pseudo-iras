@@ -15,7 +15,7 @@ async def email_report(payload: EmailRequest):
             detail="Report not found. Please run analysis first."
         )
 
-    success = await send_report_email(
+    success, detail_msg = await send_report_email(
         to_email=payload.to_email,
         candidate_name=payload.candidate_name,
         report=report,
@@ -23,7 +23,7 @@ async def email_report(payload: EmailRequest):
     )
 
     if not success:
-        raise HTTPException(status_code=500, detail="Failed to send email. Check SMTP config.")
+        raise HTTPException(status_code=500, detail=detail_msg)
 
     return EmailResponse(
         success=True,
