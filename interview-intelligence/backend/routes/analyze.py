@@ -20,39 +20,50 @@ async def analyze_interview(payload: AnalyzeRequest):
     if not file_path or not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Session file not found. Please upload first.")
 
-    # Step 1 — Transcription
-    transcript = await transcribe_audio(file_path)
-    if not transcript:
-        raise HTTPException(status_code=500, detail="Transcription failed.")
+    try:
+        # Step 1 — Transcription
+        transcript = await transcribe_audio(file_path)
+        if not transcript:
+            raise HTTPException(status_code=500, detail="Transcription failed.")
 
-    # Step 2 — Audio Metrics (filler words, pace, pauses)
-    audio_metrics = await extract_audio_metrics(file_path, transcript)
+        # Step 2 — Audio Metrics (filler words, pace, pauses)
+        audio_metrics = await extract_audio_metrics(file_path, transcript)
 
-    # Step 3 — Emotion Detection
-    emotions = await detect_emotions(file_path)
+        # Step 3 — Emotion Detection
+        emotions = await detect_emotions(file_path)
 
-    # Step 4 — AI Scoring via Gemini
-    ai_scores = await analyze_transcript(
-        transcript=transcript,
-        job_role=payload.job_role,
-        experience_level=payload.experience_level
-    )
+        # Step 4 — AI Scoring via Gemini
+        ai_scores = await analyze_transcript(
+            transcript=transcript,
+            job_role=payload.job_role,
+            experience_level=payload.experience_level
+        )
 
-    # Step 5 — Build unified report
-    report = build_report(
-        session_id=payload.session_id,
-        transcript=transcript,
-        audio_metrics=audio_metrics,
-        emotions=emotions,
-        ai_scores=ai_scores,
-        job_role=payload.job_role
-    )
+        # Step 5 — Build unified report
+        report = build_report(
+            session_id=payload.session_id,
+            transcript=transcript,
+            audio_metrics=audio_metrics,
+            emotions=emotions,
+            ai_scores=ai_scores,
+            job_role=payload.job_role
+        )
 
-    save_report(payload.session_id, report)
+        save_report(payload.session_id, report)
 
-    return AnalyzeResponse(
-        session_id=payload.session_id,
-        status="completed",
-        summary=report.get("summary", {}),
-        message="Analysis complete. Fetch full report from /api/dashboard/{session_id}"
-    )
+        return AnalyzeResponse(
+            session_id=payload.session_id,
+            status="completed",
+            summary=report.get("summary", {}),
+            message="Analysis complete. Fetch full report from /api/dashboard/{session_id}"
+        )
+
+    except FileNotFoundError as e:
+        if "ffmpeg" in str(e).lower() or "[winerror 2]" in str(e).lower():
+            raise HTTPException(status_code=500, detail="FFmpeg is not installed or not in PATH. Required for processing video files.")
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        error_msg = str(e).lower()
+        if "authentication" in error_msg or "api key" in error_msg or "401" in error_msg:
+            raise HTTPException(status_code=401, detail="Invalid API Key. Please update your .env file with valid GROQ_API_KEY and GEMINI_API_KEY.")
+        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")

@@ -1,0 +1,101 @@
+{
+  "session_id": "898030f7-5590-46c9-8894-a73dd8c41bc9",
+  "generated_at": "2026-04-18T11:13:21.176465+00:00",
+  "job_role": "Software Engineer",
+  "overall_score": 1,
+  "summary": {
+    "overall_score": 1,
+    "job_role": "Software Engineer",
+    "recommended": false,
+    "primary_emotion": "neutral",
+    "speech_pace_wpm": 0.0,
+    "filler_rate_pct": 3.53,
+    "word_count": 397,
+    "assessment": "The candidate provided song lyrics as their entire response, indicating a complete failure to engage with the interview process or provide any information relevant to the Software Engineer role. There is no basis to evaluate any job-specific competencies or professional attributes."
+  },
+  "transcript": " When life leaves you high and dry, I'll be at your door tonight if you need help, if you need help I'll shut down the city lights, I'll lie, cheat, I'll beg and bribe to make you well, to make you well When enemies are at your door, I'll carry you away for more if you need help, if you need help Your hope dangling by a string I'll share in your suffering To make you well, to make you well Give me reasons to believe That you would do the same for me And I will do it for you For you Baby, I'm not moving on I'll love you long after you're gone For you For you You will never sleep alone, I'll love you long after you go And long after you're gone, gone, gone When you fall like a statue, I'm gonna be there to catch you Put you on your feet, you on your feet And if your well is empty, not a thing will prevent me Tell me what you need, what do you need? I surrender honestly, you've always done the same for me So I will do it for you, for you Baby I not moving on I love you long after you gone For you for you You will never sleep alone I love you long after you gone And long after you're gone, gone, gone You're my backbone, you're my cornerstone You're my crutch when my legs start moving You're my head start, you're my rugged heart You're the pulse that I've always needed Like a drum, baby, don't stop beating Like a drum, baby, don't stop beating Like a drum, baby, don't stop beating Like a drum, my heart never stops beating For you Baby, I'm not moving on I'll love you long after you're gone For you You will never sleep alone, I'll love you long after you go For you Baby, I'm not moving on, I'll love you long after you go For you You will never sleep alone, I'll love you long, long after you go Like a drum, baby, don't stop beating Like a drum, baby, don't stop beating Like a drum, baby, don't stop beating Like a drum, my heart never stops beating for you And long after you're gone, gone, gone I'll love you long after you're gone, gone, gone",
+  "ai_scores": {
+    "scores": {
+      "communication_clarity": 1,
+      "technical_knowledge": 1,
+      "problem_solving": 1,
+      "confidence": 1,
+      "cultural_fit": 1,
+      "leadership_potential": 1,
+      "conciseness": 1,
+      "relevance_of_answers": 1
+    },
+    "overall_score": 1,
+    "strengths": [
+      "None relevant to the Software Engineer role or interview performance."
+    ],
+    "weaknesses": [
+      "Provided irrelevant content instead of answering interview questions.",
+      "Demonstrated a complete lack of understanding of the interview process.",
+      "No evidence of technical knowledge, problem-solving skills, or professional communication.",
+      "Answers were entirely off-topic and repetitive."
+    ],
+    "improvement_tips": [
+      "Understand the purpose and format of a job interview.",
+      "Prepare to discuss relevant experience, technical skills, and problem-solving approaches.",
+      "Actively listen to questions and provide direct, concise, and relevant answers.",
+      "If this was an error, ensure future interview environments are free from distractions or technical glitches that could lead to such an output."
+    ],
+    "summary": "The candidate provided song lyrics as their entire response, indicating a complete failure to engage with the interview process or provide any information relevant to the Software Engineer role. There is no basis to evaluate any job-specific competencies or professional attributes.",
+    "recommended_for_role": false
+  },
+  "audio_metrics": {
+    "filler_word_analysis": {
+      "total_filler_words": 14,
+      "breakdown": {
+        "like": 9,
+        "well": 5
+      },
+      "filler_rate": 3.53
+    },
+    "word_count": 397,
+    "sentence_count": 2,
+    "avg_sentence_length": 198.5,
+    "speech_pace_wpm": 0.0,
+    "pause_analysis": {
+      "estimated_long_pauses": 0,
+      "note": "For precise pause detection, use Whisper verbose timestamps."
+    },
+    "vocabulary_diversity": {
+      "total_words": 434,
+      "unique_words": 104,
+      "type_token_ratio": 0.2396,
+      "top_10_words": {
+        "you": 62,
+        "i": 24,
+        "for": 16,
+        "gone": 16,
+        "ll": 13,
+        "long": 13,
+        "after": 12,
+        "re": 12,
+        "a": 11,
+        "baby": 10
+      }
+    },
+    "duration_seconds": 0.0
+  },
+  "emotions": {
+    "source": [
+      "audio"
+    ],
+    "emotion_profile": {
+      "primary_emotion": "neutral",
+      "energy_level": "medium",
+      "overall_confidence_signal": "medium"
+    },
+    "timeline": [],
+    "audio_emotions": {
+      "dominant_emotion": "neutral",
+      "energy_level": "medium",
+      "pitch_variability": "moderate",
+      "note": "Integrate Hume AI or SpeechBrain for real prosody analysis."
+    }
+  },
+  "version": "1.0"
+}
