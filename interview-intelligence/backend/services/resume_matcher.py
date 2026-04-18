@@ -1,24 +1,28 @@
 import os
 import json
 import asyncio
-import google.generativeai as genai
+from google import genai
+from google.genai import types
+from pydantic import BaseModel
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+API_KEY = os.getenv("GEMINI_API_KEY")
+client = genai.Client(api_key=API_KEY) if API_KEY and API_KEY != "dummy" else None
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
 
 SYSTEM_PROMPT = """
 You are an expert ATS (Applicant Tracking System) and career advisor.
-Analyze the resume content against the job role and return ONLY valid JSON with no markdown fences:
-{
-  "match_score": <0-100>,
-  "matched_skills": ["skill1", "skill2"],
-  "missing_skills": ["skill3", "skill4"],
-  "experience_alignment": "<strong|moderate|weak>",
-  "education_relevance": "<high|medium|low>",
-  "recommendations": ["Tip 1", "Tip 2", "Tip 3"],
-  "summary": "<2-3 sentence assessment>"
-}
+Analyze the candidate's resume content against the expected job role.
+Determine matched skills, missing skills, experience alignment, education relevance, and provide actionable recommendations. Finally, give a match score from 0-100 and a brief summary.
 """
+
+class ResumeMatch(BaseModel):
+    match_score: int
+    matched_skills: list[str]
+    missing_skills: list[str]
+    experience_alignment: str
+    education_relevance: str
+    recommendations: list[str]
+    summary: str
 
 
 async def match_resume_to_role(
@@ -85,10 +89,26 @@ def _extract_docx(path: str) -> str:
 
 
 def _call_gemini(full_prompt: str) -> dict:
-    model = genai.GenerativeModel(
-        model_name=GEMINI_MODEL,
-        generation_config=genai.GenerationConfig(temperature=0.2, max_output_tokens=1000)
+    if not client:
+        raise RuntimeError("GEMINI_API_KEY is missing or invalid.")
+    
+    response = client.models.generate_content(
+        model=GEMINI_MODEL,
+        contents=full_prompt,
+        config=types.GenerateContentConfig(
+            temperature=0.2,
+            max_output_tokens=1000,
+            response_mime_type="application/json",
+            response_schema=ResumeMatch,
+        )
     )
-    response = model.generate_content(full_prompt)
     raw = response.text.strip().replace("```json", "").replace("```", "").strip()
-    return json.loads(raw)
+    
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as e:
+        import ast
+        try:
+            return ast.literal_eval(raw)
+        except:
+            raise ValueError(f"Gemini schema generation failed: {e}")

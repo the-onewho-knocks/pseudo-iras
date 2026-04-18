@@ -40,32 +40,46 @@ async def _analyze_video_frames(file_path: str) -> dict:
     if not frames:
         return {"error": "No frames extracted from video."}
 
-    results = []
-    for frame_path in frames[:5]:
-        emotion = await asyncio.to_thread(_gemini_vision_emotion, frame_path)
-        results.append({"frame": os.path.basename(frame_path), "emotion": emotion})
+    # Batch 3 frames into a SINGLE request to avoid 429 Rate Limit Exhaustion
+    selected_frames = frames[:3]
+    results = await asyncio.to_thread(_gemini_vision_emotion_batch, selected_frames)
     return {"frame_emotions": results}
 
 
-def _gemini_vision_emotion(frame_path: str) -> dict:
-    with open(frame_path, "rb") as f:
-        image_data = base64.b64encode(f.read()).decode("utf-8")
+def _gemini_vision_emotion_batch(frame_paths: list[str]) -> list[dict]:
+    contents = []
+    for fp in frame_paths:
+        with open(fp, "rb") as f:
+            image_data = base64.b64encode(f.read()).decode("utf-8")
+            contents.append({"mime_type": "image/jpeg", "data": image_data})
+
+    contents.append(
+        "Look at these sequential interview frames. Identify the person's emotional state in each. "
+        "Return ONLY a valid JSON array of objects (one per image) with no markdown fences. "
+        "Format: [{\"emotion\": \"<label>\", \"confidence\": <0.0-1.0>, \"notes\": \"<brief>\"}]"
+    )
 
     model = genai.GenerativeModel(GEMINI_MODEL)
-    response = model.generate_content([
-        {"mime_type": "image/jpeg", "data": image_data},
-        (
-            "Look at this interview frame. Identify the person's emotional state. "
-            "Return ONLY a JSON object with no markdown fences: "
-            "{\"emotion\": \"<label>\", \"confidence\": <0.0-1.0>, \"notes\": \"<brief>\"}"
-        )
-    ])
-
+    response = model.generate_content(contents)
+    
     raw = response.text.strip().replace("```json", "").replace("```", "").strip()
     try:
-        return json.loads(raw)
+        parsed_emotions = json.loads(raw)
+        if not isinstance(parsed_emotions, list):
+            parsed_emotions = [parsed_emotions]
+        # Pad or slice to match exactly len(frame_paths) just in case AI gets confused
+        while len(parsed_emotions) < len(frame_paths):
+            parsed_emotions.append({"emotion": "neutral", "confidence": 0.5, "notes": "fallback padding"})
     except Exception:
-        return {"emotion": raw, "confidence": 0.5, "notes": "parse error"}
+        parsed_emotions = [{"emotion": "neutral", "confidence": 0.5, "notes": "parse error"}] * len(frame_paths)
+
+    results = []
+    for path, emot in zip(frame_paths, parsed_emotions):
+        results.append({
+            "frame": os.path.basename(path),
+            "emotion": emot
+        })
+    return results
 
 
 async def _analyze_audio_prosody(file_path: str) -> dict:

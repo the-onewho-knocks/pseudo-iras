@@ -1,7 +1,7 @@
 import os
 import asyncio
 from groq import Groq
-from utils.video_utils import extract_audio_from_video
+from utils.video_utils import universal_audio_encoder
 
 _groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
@@ -15,11 +15,8 @@ async def transcribe_audio(file_path: str) -> str:
     Transcribe an audio or video file using Groq Whisper.
     For video files, audio is extracted first via FFmpeg.
     """
-    ext = os.path.splitext(file_path)[-1].lower()
-
-    audio_path = file_path
-    if ext in VIDEO_EXTENSIONS:
-        audio_path = await extract_audio_from_video(file_path)
+    # Pass literally any uploaded file through the unified FFmpeg squasher
+    audio_path = await universal_audio_encoder(file_path)
 
     if not os.path.exists(audio_path):
         raise FileNotFoundError(f"Audio file not found at: {audio_path}")
@@ -41,10 +38,7 @@ def _whisper_transcribe(audio_path: str) -> str:
 
 async def transcribe_with_timestamps(file_path: str) -> dict:
     """Transcribe and return verbose JSON with segment-level timestamps."""
-    ext = os.path.splitext(file_path)[-1].lower()
-    audio_path = file_path
-    if ext in VIDEO_EXTENSIONS:
-        audio_path = await extract_audio_from_video(file_path)
+    audio_path = await universal_audio_encoder(file_path)
 
     return await asyncio.to_thread(_whisper_verbose, audio_path)
 

@@ -6,7 +6,7 @@ import os
 
 router = APIRouter()
 
-ALLOWED_EXTENSIONS = {".mp3", ".mp4", ".wav", ".webm", ".m4a", ".ogg"}
+ALLOWED_EXTENSIONS = {".mp3", ".mp4", ".wav", ".webm", ".m4a", ".ogg", ".mpeg", ".mkv", ".flv", ".mov", ".avi", ".3gp", ".aac", ".flac", ".wmv"}
 
 @router.post("/", response_model=UploadResponse)
 async def upload_interview(file: UploadFile = File(...)):

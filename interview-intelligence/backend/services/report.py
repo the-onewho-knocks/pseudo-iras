@@ -5,7 +5,6 @@ def build_report(
     session_id: str,
     transcript: str,
     audio_metrics: dict,
-    emotions: dict,
     ai_scores: dict,
     job_role: str = "Unknown"
 ) -> dict:
@@ -16,7 +15,6 @@ def build_report(
         "overall_score":   overall_score,
         "job_role":        job_role,
         "recommended":     ai_scores.get("recommended_for_role", False),
-        "primary_emotion": emotions.get("emotion_profile", {}).get("primary_emotion", "neutral"),
         "speech_pace_wpm": audio_metrics.get("speech_pace_wpm", 0),
         "filler_rate_pct": audio_metrics.get("filler_word_analysis", {}).get("filler_rate", 0),
         "word_count":      audio_metrics.get("word_count", 0),
@@ -32,7 +30,6 @@ def build_report(
         "transcript":    transcript,
         "ai_scores":     ai_scores,
         "audio_metrics": audio_metrics,
-        "emotions":      emotions,
         "version":       "1.0"
     }
 
@@ -63,6 +60,5 @@ def format_report_for_display(report: dict) -> dict:
             "pace_wpm":     report.get("audio_metrics", {}).get("speech_pace_wpm"),
             "filler_words": report.get("audio_metrics", {}).get("filler_word_analysis", {}),
             "duration_sec": report.get("audio_metrics", {}).get("duration_seconds")
-        },
-        "emotion_profile": report.get("emotions", {}).get("emotion_profile", {})
+        }
     }

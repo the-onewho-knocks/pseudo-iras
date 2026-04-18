@@ -1,0 +1,86 @@
+{
+  "session_id": "9229a53e-d495-41d7-ab41-9898a96908cb",
+  "generated_at": "2026-04-18T14:34:57.601421+00:00",
+  "job_role": "Software Engineer",
+  "overall_score": 5,
+  "summary": {
+    "overall_score": 5,
+    "job_role": "Software Engineer",
+    "recommended": false,
+    "speech_pace_wpm": 0.0,
+    "filler_rate_pct": 3.12,
+    "word_count": 384,
+    "assessment": "The candidate provided song lyrics instead of answering any interview questions, demonstrating a complete misunderstanding of the interview process and the requirements for a Software Engineer role. No relevant skills, experience, or professional aptitude were demonstrated during this interaction."
+  },
+  "transcript": " When life leaves you high and dry, I'll be at your door tonight if you need help, if you need help. I'll shut down the city lights, I'll lie, cheat, I'll beg and bribe to make you well, to make you well. When enemies are at your door, I'll carry you away for more if you need help, if you need help. Your hope dangling by a string I'll share in your suffering To make you well, to make you well Give me reasons to believe That you would do the same for me And I would do it for you For you Baby, I'm not moving on I'll love you long after you're gone For you You will never sleep alone, I'll love you long after you go And long after you're gone, gone, gone When you fall like a statue, I'm gonna be there to catch you Put you on your feet, you on your feet And if your well is empty, nothing will prevent me Tell me what you need, what do you need? I surrender honestly, you've always done the same for me. So I will do it for you, for you. Baby I not moving on I love you long after you gone For you for you You will never sleep alone I love you long after you gone And long after you're gone, gone, gone. You're my backbone. You're my cornerstone. You're my crutch when my legs start moving. You're my head start. You're my rugged heart. You're the pulse that I've always needed. Like a drum, baby, don't stop beating Like a drum, I'll never stop beating for you Baby, I'm not moving on, I'll love you long after you're gone For you, for you You will never sleep alone I'll love you long after you go For you For you Baby, I'm not moving on I'll love you long after you go For you For you You will never sleep alone I'll love you long, long after you go Like a drum, baby, don't stop beating Like a drum, baby, don't stop beating Like a drum, baby, don't stop beating Like a drum, my heart never stops beating for you And long after you're gone, gone, gone I'll love you long after you're gone, gone, gone",
+  "ai_scores": {
+    "scores": {
+      "communication_clarity": 1,
+      "technical_knowledge": 1,
+      "problem_solving": 1,
+      "confidence": 2,
+      "cultural_fit": 1,
+      "leadership_potential": 1,
+      "conciseness": 1,
+      "relevance_of_answers": 1
+    },
+    "overall_score": 5,
+    "strengths": [
+      "Clear enunciation of words",
+      "Ability to recite song lyrics"
+    ],
+    "weaknesses": [
+      "Complete lack of understanding of interview context",
+      "Inability to provide relevant answers to job-related questions",
+      "No demonstration of technical or problem-solving skills",
+      "Lack of professional communication appropriate for an interview setting",
+      "Extreme verbosity with irrelevant content"
+    ],
+    "improvement_tips": [
+      "Understand the purpose and format of a job interview",
+      "Prepare to answer questions directly related to the job role and required skills",
+      "Focus on providing concise and relevant information",
+      "Practice professional communication and active listening skills",
+      "Ensure responses are tailored to the interviewer's questions, not pre-prepared unrelated content"
+    ],
+    "summary": "The candidate provided song lyrics instead of answering any interview questions, demonstrating a complete misunderstanding of the interview process and the requirements for a Software Engineer role. No relevant skills, experience, or professional aptitude were demonstrated during this interaction.",
+    "recommended_for_role": false
+  },
+  "audio_metrics": {
+    "filler_word_analysis": {
+      "total_filler_words": 12,
+      "breakdown": {
+        "like": 7,
+        "well": 5
+      },
+      "filler_rate": 3.12
+    },
+    "word_count": 384,
+    "sentence_count": 14,
+    "avg_sentence_length": 27.43,
+    "speech_pace_wpm": 0.0,
+    "pause_analysis": {
+      "estimated_long_pauses": 0,
+      "note": "For precise pause detection, use Whisper verbose timestamps."
+    },
+    "vocabulary_diversity": {
+      "total_words": 420,
+      "unique_words": 104,
+      "type_token_ratio": 0.2476,
+      "top_10_words": {
+        "you": 64,
+        "i": 25,
+        "for": 18,
+        "gone": 16,
+        "ll": 14,
+        "long": 13,
+        "after": 12,
+        "re": 12,
+        "love": 9,
+        "a": 8
+      }
+    },
+    "duration_seconds": 0.0
+  },
+  "version": "1.0"
+}

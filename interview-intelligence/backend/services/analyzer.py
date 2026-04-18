@@ -1,9 +1,11 @@
 import os
 import json
 import asyncio
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+API_KEY = os.getenv("GEMINI_API_KEY")
+client = genai.Client(api_key=API_KEY) if API_KEY and API_KEY != "dummy" else None
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
 
 SCORING_DIMENSIONS = [
@@ -14,27 +16,13 @@ SCORING_DIMENSIONS = [
 
 SYSTEM_PROMPT = """
 You are an expert interview coach and talent evaluator.
-Analyze the provided interview transcript and return a structured JSON evaluation.
+Analyze the provided interview transcript and critically evaluate the candidate's performance across communication, technical knowledge, problem solving, confidence, cultural fit, leadership potential, conciseness, and relevance of answers.
+Provide constructive strengths, weaknesses, and improvement tips. Finally, give an overall score (1-100) and indicate if they are recommended for the role.
 
-Return ONLY valid JSON with no markdown fences, in this exact format:
-{
-  "scores": {
-    "communication_clarity": <1-10>,
-    "technical_knowledge": <1-10>,
-    "problem_solving": <1-10>,
-    "confidence": <1-10>,
-    "cultural_fit": <1-10>,
-    "leadership_potential": <1-10>,
-    "conciseness": <1-10>,
-    "relevance_of_answers": <1-10>
-  },
-  "overall_score": <1-100>,
-  "strengths": ["..."],
-  "weaknesses": ["..."],
-  "improvement_tips": ["..."],
-  "summary": "<2-3 sentence overall assessment>",
-  "recommended_for_role": <true|false>
-}
+CRITICAL: 
+1. Keep all text fields (strengths, weaknesses, improvement_tips, summary) VERY CONCISE (1-2 short sentences max each).
+2. You MUST return ONLY a raw JSON object string. Do not use markdown code blocks like ```json.
+3. Completely ESCAPE any double-quotes inside your text fields using a backslash (\"), or simply use single quotes for inner quotes. Never leave unescaped double quotes inside JSON values.
 """
 
 
@@ -55,7 +43,7 @@ Interview Transcript:
 
 Evaluate this candidate thoroughly based on the transcript above.
 """
-    return await asyncio.to_thread(_call_gemini, SYSTEM_PROMPT + "\n\n" + user_prompt, 0.3, 1500)
+    return await asyncio.to_thread(_call_gemini, SYSTEM_PROMPT + "\n\n" + user_prompt, 0.3, 2000)
 
 
 async def generate_follow_up_questions(transcript: str, job_role: str) -> list[str]:
@@ -63,37 +51,99 @@ async def generate_follow_up_questions(transcript: str, job_role: str) -> list[s
     prompt = f"""
 Based on this interview transcript for the role of {job_role},
 generate 5 targeted follow-up questions that probe areas where the candidate was weak or vague.
-Return ONLY a JSON array of question strings, no markdown fences.
+Keep the questions extremely concise and short.
+Return ONLY a raw JSON array of 5 question strings, no markdown fences.
 
 Transcript:
 \"\"\"{transcript}\"\"\"
 """
     raw = await asyncio.to_thread(_call_gemini_raw, prompt, 0.5, 600)
+    raw = raw.replace("```json", "").replace("```", "").strip()
+    
     try:
+        if "[" in raw and "]" in raw:
+            raw = raw[raw.find("["):raw.rfind("]")+1]
         return json.loads(raw)
     except Exception:
-        return [raw]
+        import ast
+        import re
+        try:
+            cleaned = re.sub(r'\btrue\b', 'True', raw)
+            cleaned = re.sub(r'\bfalse\b', 'False', cleaned)
+            cleaned = re.sub(r'\bnull\b', 'None', cleaned)
+            return ast.literal_eval(cleaned)
+        except Exception:
+            return [raw]
 
 
-def _call_gemini(full_prompt: str, temperature: float = 0.3, max_tokens: int = 1500) -> dict:
-    model = genai.GenerativeModel(
-        model_name=GEMINI_MODEL,
-        generation_config=genai.GenerationConfig(
+from pydantic import BaseModel
+
+class Scores(BaseModel):
+    communication_clarity: int
+    technical_knowledge: int
+    problem_solving: int
+    confidence: int
+    cultural_fit: int
+    leadership_potential: int
+    conciseness: int
+    relevance_of_answers: int
+
+class InterviewEvaluation(BaseModel):
+    scores: Scores
+    overall_score: int
+    strengths: list[str]
+    weaknesses: list[str]
+    improvement_tips: list[str]
+    summary: str
+    recommended_for_role: bool
+
+def _call_gemini(full_prompt: str, temperature: float = 0.3, max_tokens: int = 2000) -> dict:
+    if not client:
+        raise RuntimeError("GEMINI_API_KEY is missing or invalid.")
+    
+    response = client.models.generate_content(
+        model=GEMINI_MODEL,
+        contents=full_prompt,
+        config=types.GenerateContentConfig(
             temperature=temperature,
             max_output_tokens=max_tokens,
+            response_mime_type="application/json",
+            response_schema=InterviewEvaluation,
         )
     )
-    response = model.generate_content(full_prompt)
+    if hasattr(response, "parsed") and response.parsed is not None:
+        return response.parsed.model_dump() if hasattr(response.parsed, "model_dump") else dict(response.parsed)
+
     raw = response.text.strip().replace("```json", "").replace("```", "").strip()
-    return json.loads(raw)
+    
+    try:
+        if "{" in raw and "}" in raw:
+            raw = raw[raw.find("{"):raw.rfind("}")+1]
+        return json.loads(raw)
+    except json.JSONDecodeError as e:
+        print(f"JSON Parse Error: {e}. Raw response: {raw}")
+        # Extreme fallback if Gemini still decides to hallucinate syntax
+        import ast
+        import re
+        try:
+            cleaned = re.sub(r'\btrue\b', 'True', raw)
+            cleaned = re.sub(r'\bfalse\b', 'False', cleaned)
+            cleaned = re.sub(r'\bnull\b', 'None', cleaned)
+            return ast.literal_eval(cleaned)
+        except Exception:
+            raise ValueError(f"Gemini returned completely invalid JSON: {e}")
 
 
 def _call_gemini_raw(prompt: str, temperature: float = 0.5, max_tokens: int = 600) -> str:
-    model = genai.GenerativeModel(
-        model_name=GEMINI_MODEL,
-        generation_config=genai.GenerationConfig(
+    if not client:
+        raise RuntimeError("GEMINI_API_KEY is missing or invalid.")
+        
+    response = client.models.generate_content(
+        model=GEMINI_MODEL,
+        contents=prompt,
+        config=types.GenerateContentConfig(
             temperature=temperature,
             max_output_tokens=max_tokens,
         )
     )
-    return model.generate_content(prompt).text.strip()
+    return response.text.strip()
