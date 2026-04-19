@@ -55,7 +55,9 @@ def format_report_for_display(report: dict) -> dict:
         "scores":        report.get("ai_scores", {}).get("scores", {}),
         "strengths":     report.get("ai_scores", {}).get("strengths", []),
         "weaknesses":    report.get("ai_scores", {}).get("weaknesses", []),
-        "tips":          report.get("ai_scores", {}).get("improvement_tips", []),
+        "next_steps":    report.get("ai_scores", {}).get("improvement_tips", []),
+        "ai_summary":    report.get("ai_scores", {}).get("summary", ""),
+        "transcript":    report.get("transcript", ""),
         "audio": {
             "pace_wpm":     report.get("audio_metrics", {}).get("speech_pace_wpm"),
             "filler_words": report.get("audio_metrics", {}).get("filler_word_analysis", {}),
