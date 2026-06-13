@@ -6,6 +6,7 @@ from services.audio_metrics import extract_audio_metrics
 from services.report import build_report
 from utils.file_handler import get_upload_path, save_report
 import os
+import asyncio
 
 router = APIRouter()
 
@@ -25,14 +26,14 @@ async def analyze_interview(payload: AnalyzeRequest):
         if not transcript:
             raise HTTPException(status_code=500, detail="Transcription failed.")
 
-        # Step 2 — Audio Metrics (filler words, pace, pauses)
-        audio_metrics = await extract_audio_metrics(file_path, transcript)
-
-        # Step 3 — AI Scoring via Groq Llama-3
-        ai_scores = await analyze_transcript(
-            transcript=transcript,
-            job_role=payload.job_role,
-            experience_level=payload.experience_level
+        # Step 2 & 3 — Audio Metrics and AI Scoring run concurrently
+        audio_metrics, ai_scores = await asyncio.gather(
+            extract_audio_metrics(file_path, transcript),
+            analyze_transcript(
+                transcript=transcript,
+                job_role=payload.job_role,
+                experience_level=payload.experience_level
+            )
         )
 
         # Step 4 — Build unified report

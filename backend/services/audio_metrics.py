@@ -31,7 +31,22 @@ async def extract_audio_metrics(file_path: str, transcript: str) -> dict:
 
 
 def _get_audio_duration(file_path: str) -> float:
-    """Use mutagen or pydub to get audio duration in seconds."""
+    """Use ffprobe for fast duration check, fallback to pydub."""
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries",
+             "format=duration", "-of",
+             "default=noprint_wrappers=1:nokey=1", file_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True
+        )
+        if result.stdout.strip():
+            return float(result.stdout.strip())
+    except Exception:
+        pass
+
     try:
         from pydub import AudioSegment
         ext = os.path.splitext(file_path)[-1].lower().strip(".")

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from utils.file_handler import save_upload
+from fastapi.responses import FileResponse
+from utils.file_handler import save_upload, get_upload_path
 from models.schemas import UploadResponse
 import uuid
 import os
@@ -30,3 +31,13 @@ async def upload_interview(file: UploadFile = File(...)):
         file_path=file_path,
         message="File uploaded successfully. Use session_id to trigger analysis."
     )
+
+@router.get("/{session_id}/media")
+async def get_media(session_id: str):
+    """
+    Serve the uploaded media file for playback.
+    """
+    file_path = get_upload_path(session_id)
+    if not file_path or not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Media file not found.")
+    return FileResponse(file_path)

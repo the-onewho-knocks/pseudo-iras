@@ -38,21 +38,34 @@ async def upload_and_match_resume(
     )
 
 
+from typing import Optional
+from utils.file_handler import save_resume, load_report, get_resume_path
+
 @router.post("/match-with-session")
 async def match_resume_with_interview(
-    resume_file: UploadFile = File(...),
     session_id: str = Form(...),
-    job_role: str = Form(...)
+    job_role: str = Form(...),
+    resume_file: Optional[UploadFile] = File(None),
+    resume_id: Optional[str] = Form(None)
 ):
     """Match a resume against both the job role and the interview transcript."""
     report = load_report(session_id)
     if not report:
         raise HTTPException(status_code=404, detail="Interview report not found for this session.")
 
-    resume_id = str(uuid.uuid4())
-    resume_path = await save_resume(resume_file, resume_id)
-    transcript = report.get("transcript", "")
+    if resume_file:
+        new_resume_id = str(uuid.uuid4())
+        resume_path = await save_resume(resume_file, new_resume_id)
+        active_resume_id = new_resume_id
+    elif resume_id:
+        resume_path = get_resume_path(resume_id)
+        if not resume_path:
+            raise HTTPException(status_code=404, detail="Resume not found.")
+        active_resume_id = resume_id
+    else:
+        raise HTTPException(status_code=400, detail="Must provide either resume_file or resume_id.")
 
+    transcript = report.get("transcript", "")
     result = await match_resume_to_role(
         resume_path=resume_path,
         job_role=job_role,
@@ -61,7 +74,7 @@ async def match_resume_with_interview(
 
     return {
         "session_id": session_id,
-        "resume_id": resume_id,
+        "resume_id": active_resume_id,
         "job_role": job_role,
         "resume_interview_alignment": result
     }
