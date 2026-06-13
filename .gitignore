@@ -1,2 +1,4 @@
 .env
 uploads/
+sample_data/
+.venv/
